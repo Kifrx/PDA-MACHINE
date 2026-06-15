@@ -6,10 +6,19 @@
     <meta name="description" content="Simulator Pushdown Automaton (PDA) Interaktif untuk bahasa tanda kurung seimbang L = {w | w memiliki jumlah dan urutan kurung yang seimbang}.">
     <title>Pushdown Automaton (PDA) Simulator - Balanced Parentheses</title>
     
-    <!-- Google Fonts: Outfit & Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         :root {
@@ -817,10 +826,8 @@
     </header>
 
     <main>
-        <!-- Left Column: Controls and Tape -->
         <div class="left-column">
             
-            <!-- Panel 1: Kontrol Simulator -->
             <section class="glass-panel" aria-labelledby="control-panel-title">
                 <h2 class="panel-title" id="control-panel-title">
                     Simulator Control Panel
@@ -850,7 +857,6 @@
                         </div>
                     </div>
 
-                    <!-- Playback Controls -->
                     <div class="playback-controls">
                         <div class="btn-row">
                             <button id="btn-reset" class="icon-btn" title="Reset Simulasi" disabled>
@@ -876,19 +882,15 @@
                 </div>
             </section>
 
-            <!-- Panel 2: Live Status & Tape -->
             <section class="glass-panel" aria-labelledby="status-panel-title">
                 <h2 class="panel-title" id="status-panel-title">Status Penelusuran</h2>
                 
-                <!-- Pita Input (Tape) -->
                 <div class="tape-container">
                     <span class="tape-label">Pita Input (Input Tape)</span>
                     <div id="tape-visual" class="tape-cells">
-                        <!-- Tape cells render here -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Live Results Banner -->
                 <div id="result-box" class="result-panel running">
                     <div id="result-status" class="result-status">BELUM DIMULAI</div>
                     <div id="result-desc" class="result-desc">Silakan masukkan string tanda kurung lalu klik "Load" untuk memulai simulasi.</div>
@@ -896,17 +898,14 @@
             </section>
         </div>
 
-        <!-- Right Column: State Diagram and Stack -->
         <div class="right-column">
             
-            <!-- Panel 3: State Diagram -->
             <section class="glass-panel" aria-labelledby="diagram-panel-title">
                 <h2 class="panel-title" id="diagram-panel-title">Diagram Transisi PDA</h2>
                 
                 <div class="diagram-container">
                     <svg class="pda-graph" viewBox="0 0 500 240">
                         <defs>
-                            <!-- Markers for arrowheads -->
                             <marker id="arrow" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                                 <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#9ca3af" />
                             </marker>
@@ -915,28 +914,22 @@
                             </marker>
                         </defs>
 
-                        <!-- Initial Transition -->
                         <path d="M 30 120 L 85 120" class="transition-path" marker-end="url(#arrow)" id="trans-init" />
                         <text x="45" y="110" class="label-text">Start</text>
 
-                        <!-- State q0 (Main State) -->
                         <circle id="state-q0" cx="120" cy="120" r="35" class="state-circle" />
                         <text x="120" y="125" class="state-text">q0</text>
 
-                        <!-- Self-loop Push transitions (above q0) -->
                         <path d="M 102 92 C 70 20, 170 20, 138 92" class="transition-path" marker-end="url(#arrow)" id="trans-push" />
                         <text x="120" y="18" class="label-text">( , Z0 / X Z0</text>
                         <text x="120" y="32" class="label-text">( , X / X X</text>
 
-                        <!-- Self-loop Pop transitions (below q0) -->
                         <path d="M 102 148 C 70 220, 170 220, 138 148" class="transition-path" marker-end="url(#arrow)" id="trans-pop" />
                         <text x="120" y="228" class="label-text">) , X / ε</text>
 
-                        <!-- Transition to final state qf -->
                         <path d="M 155 120 L 345 120" class="transition-path" marker-end="url(#arrow)" id="trans-accept" />
                         <text x="250" y="110" class="label-text">ε , Z0 / Z0</text>
 
-                        <!-- State qf (Final State) -->
                         <g id="state-qf-group">
                             <circle id="state-qf" cx="380" cy="120" r="35" class="state-circle" />
                             <circle id="state-qf-inner" cx="380" cy="120" r="28" class="state-circle-inner" />
@@ -946,18 +939,15 @@
                 </div>
             </section>
 
-            <!-- Panel 4: Stack Visualization -->
             <section class="glass-panel" aria-labelledby="stack-panel-title">
                 <h2 class="panel-title" id="stack-panel-title">Representasi Stack</h2>
                 <div class="stack-box-outer">
                     <div id="stack-visual" class="stack-well">
-                        <!-- Stack items render dynamically -->
-                    </div>
+                        </div>
                 </div>
             </section>
         </div>
 
-        <!-- Bottom Row: Log & History -->
         <section class="glass-panel log-section" aria-labelledby="log-panel-title">
             <h2 class="panel-title" id="log-panel-title">Tabel Riwayat Transisi (Pencarian Step-by-Step)</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 0.5rem;">*Tips: Anda dapat mengklik baris mana pun di bawah untuk melompat langsung ke langkah tersebut.</p>
@@ -983,7 +973,6 @@
             </div>
         </section>
 
-        <!-- Information & Explanation Section -->
         <section class="info-section">
             <div class="info-card">
                 <h3><span>⚙️</span> Cara Kerja PDA Penyeimbang Kurung</h3>
@@ -1263,7 +1252,7 @@
             const curRow = document.getElementById(`log-row-${currentStep}`);
             if (curRow) {
                 curRow.classList.add("active-row");
-                curRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Auto-scroll di-disable agar tabel riwayat tetap stabil saat stack berjalan
             }
 
             // Handle navigation buttons availability
@@ -1278,6 +1267,15 @@
         function stepForward() {
             if (currentStep < configs.length - 1) {
                 currentStep++;
+                updateStepView();
+            }
+        }
+
+        // Jump to target step when row is clicked
+        function jumpToStep(stepIdx) {
+            if (stepIdx >= 0 && stepIdx < configs.length) {
+                stopPlay();
+                currentStep = stepIdx;
                 updateStepView();
             }
         }

@@ -195,8 +195,8 @@ def start_server(port=8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, PDARequestHandler)
     print(f"============================================================")
-    print(f"🚀 SERVER SIMULATOR PDA BERHASIL DIJALANKAN!")
-    print(f"👉 Buka browser Anda dan kunjungi: http://localhost:{port}")
+    print(f"SERVER SIMULATOR PDA BERHASIL DIJALANKAN.")
+    print(f"Buka browser Anda dan kunjungi: http://localhost:{port}")
     print(f"============================================================")
     print("Tekan Ctrl+C untuk menghentikan server.\n")
     try:
