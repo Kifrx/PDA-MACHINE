@@ -1,12 +1,10 @@
-# OTOMATA-TUGAS-PRAKTIKUM-2-KELOMPOK B06
-
+# PDA Simulator - Mixed Bracket Validator
 | Name           | NRP        | 
 | ---            | ---        | 
 | Rafi Attar Maulana | 5025241141 | 
 | Syah Amin Zikri | 5025241197 | 
 | Davin Adiputra Suryolaksana | 5025241220 |
 
-# PDA Simulator - Mixed Bracket Validator
 
 ## Deskripsi
 Program akan membaca string yang dimasukkan pengguna dan menentukan apakah string tersebut **Accepted** atau **Rejected** berdasarkan aturan keseimbangan kurung menggunakan struktur data stack.
