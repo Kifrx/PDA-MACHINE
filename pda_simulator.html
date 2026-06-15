@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Simulator Pushdown Automaton (PDA) Interaktif untuk bahasa tanda kurung seimbang L = {w | w memiliki jumlah dan urutan kurung yang seimbang}.">
+    <title>Pushdown Automaton (PDA) Simulator - Balanced Parentheses</title>
+    
+    <!-- Google Fonts: Outfit & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --bg-gradient: radial-gradient(circle at 50% 50%, #1a1c29 0%, #0b0c10 100%);
+            --card-bg: rgba(22, 26, 41, 0.65);
+            --card-border: rgba(255, 255, 255, 0.07);
+            --card-border-glow: rgba(79, 172, 254, 0.15);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --primary: #4facfe;
+            --primary-glow: rgba(79, 172, 254, 0.4);
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.4);
+            
+            --accept: #10b981;
+            --accept-glow: rgba(16, 185, 129, 0.35);
+            --reject: #ef4444;
+            --reject-glow: rgba(239, 68, 68, 0.35);
+            --warning: #f59e0b;
+            
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            
+            --transition-speed: 0.25s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-color);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        header {
+            padding: 2rem 2rem 1rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 12, 16, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--card-border-glow);
+            box-shadow: 0 8px 32px 0 rgba(79, 172, 254, 0.05);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .panel-title span.badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(79, 172, 254, 0.15);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            color: var(--primary);
+            border-radius: 99px;
+            font-weight: 500;
+        }
+
+        /* Left Column Grid */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Card 1: Input & Controls */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .pda-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            transition: all var(--transition-speed);
+        }
+
+        .pda-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.25);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .pda-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: none;
+            color: #0b0c10;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-sans);
+        }
+
+        .pda-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .pda-btn:disabled {
+            background: var(--text-muted);
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: var(--bg-color);
+        }
+
+        /* Test Cases */
+        .test-cases {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .test-case-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .test-case-btn:hover {
+            background: rgba(79, 172, 254, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Playback Controls */
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+            font-size: 1.1rem;
+        }
+
+        .icon-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-primary);
+        }
+
+        .icon-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .icon-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .speed-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: all var(--transition-speed);
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--primary-glow);
+            transition: all var(--transition-speed);
+        }
+
+        .speed-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Tape Visualization */
+        .tape-container {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .tape-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tape-cells {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        .tape-cell {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tape-cell.active {
+            border-color: var(--primary);
+            background: rgba(79, 172, 254, 0.15);
+            color: var(--accent);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
+            transform: scale(1.1) translateY(-2px);
+        }
+
+        .tape-cell.active::after {
+            content: "▲";
+            position: absolute;
+            bottom: -15px;
+            font-size: 0.65rem;
+            color: var(--primary);
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-3px); }
+        }
+
+        .tape-cell.processed {
+            opacity: 0.4;
+            background: rgba(255, 255, 255, 0.01);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tape-empty {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.95rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Result Panel */
+        .result-panel {
+            padding: 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-status {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .result-panel.accept {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .result-panel.accept .result-status {
+            color: var(--accept);
+            text-shadow: 0 0 10px var(--accept-glow);
+        }
+
+        .result-panel.reject {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+        }
+        .result-panel.reject .result-status {
+            color: var(--reject);
+            text-shadow: 0 0 10px var(--reject-glow);
+        }
+
+        .result-panel.running {
+            background: rgba(79, 172, 254, 0.08);
+            border-color: rgba(79, 172, 254, 0.3);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.1);
+        }
+        .result-panel.running .result-status {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Right Column Grid */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* SVG State Diagram Card */
+        .diagram-container {
+            width: 100%;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        svg.pda-graph {
+            width: 100%;
+            height: 100%;
+        }
+
+        .state-circle {
+            fill: rgba(255, 255, 255, 0.02);
+            stroke: var(--text-secondary);
+            stroke-width: 2.5;
+            transition: all 0.3s ease;
+        }
+
+        .state-circle-inner {
+            fill: none;
+            stroke: var(--text-secondary);
+            stroke-width: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .state-text {
+            fill: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            font-weight: 700;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .transition-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.25);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .label-text {
+            fill: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-anchor: middle;
+        }
+
+        /* State Diagram Highlights */
+        .state-circle.active {
+            fill: rgba(79, 172, 254, 0.12);
+            stroke: var(--primary);
+            filter: drop-shadow(0 0 6px var(--primary-glow));
+        }
+
+        .state-circle.accept {
+            fill: rgba(16, 185, 129, 0.12);
+            stroke: var(--accept);
+            filter: drop-shadow(0 0 8px var(--accept-glow));
+        }
+        .state-circle-inner.accept {
+            stroke: var(--accept);
+        }
+
+        .state-circle.reject {
+            fill: rgba(239, 68, 68, 0.12);
+            stroke: var(--reject);
+            filter: drop-shadow(0 0 8px var(--reject-glow));
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .transition-path.active {
+            stroke: var(--accent);
+            stroke-width: 3px;
+            filter: drop-shadow(0 0 5px var(--accent-glow));
+            stroke-dasharray: 5;
+            animation: dash 1s linear infinite;
+            marker-end: url(#arrow-active) !important;
+        }
+
+        /* Stack Visualization Card */
+        .stack-box-outer {
+            display: flex;
+            justify-content: center;
+            padding: 1rem 0;
+        }
+
+        .stack-well {
+            width: 140px;
+            height: 320px;
+            border-left: 4px solid var(--text-secondary);
+            border-right: 4px solid var(--text-secondary);
+            border-bottom: 4px solid var(--text-secondary);
+            border-radius: 0 0 8px 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            box-shadow: inset 0 -15px 30px rgba(0,0,0,0.5);
+        }
+
+        .stack-well::before {
+            content: "STACK";
+            position: absolute;
+            top: -25px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        /* Stack Items */
+        .stack-item {
+            width: 100%;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0b0c10;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            animation: push-animation 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .stack-item.bottom {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: 1px solid #f59e0b;
+            color: #000;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .stack-item.x-val {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: 1px solid var(--primary);
+            color: #000;
+        }
+
+        @keyframes push-animation {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes pop-animation {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.8);
+            }
+        }
+
+        /* Table Log Card (Full width under layout) */
+        .log-section {
+            grid-column: 1 / -1;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+            max-height: 350px;
+        }
+
+        table.log-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        table.log-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(10px);
+            z-index: 1;
+        }
+
+        table.log-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+        }
+
+        table.log-table tbody tr {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        table.log-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        table.log-table tbody tr.active-row {
+            background: rgba(79, 172, 254, 0.1) !important;
+            color: var(--primary);
+        }
+
+        table.log-table tbody tr.active-row td {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .stack-cell-text {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--primary) !important;
+        }
+
+        .mono-cell {
+            font-family: var(--font-mono);
+        }
+
+        .action-cell {
+            font-weight: 500;
+        }
+        
+        .action-cell.push {
+            color: var(--primary);
+        }
+
+        .action-cell.pop {
+            color: var(--accent);
+        }
+
+        .action-cell.accept-log {
+            color: var(--accept);
+        }
+
+        .action-cell.reject-log {
+            color: var(--reject);
+        }
+
+        /* Explanation Section */
+        .info-section {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p, .info-card li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card ul {
+            padding-left: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        code.inline-code {
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.07);
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            background: rgba(11, 12, 16, 0.8);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Pushdown Automaton (PDA) Simulator</h1>
+        <p>Visualisasi Interaktif Bahasa Kurung Seimbang: L = { w | w memiliki jumlah dan urutan kurung yang seimbang }</p>
+    </header>
+
+    <main>
+        <!-- Left Column: Controls and Tape -->
+        <div class="left-column">
+            
+            <!-- Panel 1: Kontrol Simulator -->
+            <section class="glass-panel" aria-labelledby="control-panel-title">
+                <h2 class="panel-title" id="control-panel-title">
+                    Simulator Control Panel
+                    <span class="badge">PDA</span>
+                </h2>
+                
+                <div class="control-group">
+                    <label for="input-string" style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">Masukkan String Tanda Kurung:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="input-string" class="pda-input" placeholder="Contoh: (())" value="(())" autocomplete="off" spellcheck="false">
+                        <button id="btn-load" class="pda-btn" type="button">
+                            Load
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Test Case Cepat:</span>
+                        <div class="test-cases">
+                            <button type="button" class="test-case-btn" data-val="()">()</button>
+                            <button type="button" class="test-case-btn" data-val="(())">(())</button>
+                            <button type="button" class="test-case-btn" data-val="()()">()()</button>
+                            <button type="button" class="test-case-btn" data-val="(()())">(()())</button>
+                            <button type="button" class="test-case-btn" data-val="(()">(()</button>
+                            <button type="button" class="test-case-btn" data-val="())">())</button>
+                            <button type="button" class="test-case-btn" data-val=")(">) (</button>
+                            <button type="button" class="test-case-btn" data-val="((((((()))">((((((()))</button>
+                        </div>
+                    </div>
+
+                    <!-- Playback Controls -->
+                    <div class="playback-controls">
+                        <div class="btn-row">
+                            <button id="btn-reset" class="icon-btn" title="Reset Simulasi" disabled>
+                                <span>⏮</span>
+                            </button>
+                            <button id="btn-prev" class="icon-btn" title="Mundur 1 Langkah (Step Back)" disabled>
+                                <span>◀</span>
+                            </button>
+                            <button id="btn-play" class="icon-btn" title="Mainkan Otomatis (Auto Play)" disabled>
+                                <span id="play-icon">▶</span>
+                            </button>
+                            <button id="btn-next" class="icon-btn" title="Maju 1 Langkah (Step Forward)" disabled>
+                                <span>▶</span>
+                            </button>
+                        </div>
+                        
+                        <div class="speed-control">
+                            <label for="speed-slider">Kecepatan:</label>
+                            <input type="range" id="speed-slider" class="speed-slider" min="300" max="2000" step="100" value="800" title="Kecepatan step otomatis">
+                            <span id="speed-val">0.8s</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 2: Live Status & Tape -->
+            <section class="glass-panel" aria-labelledby="status-panel-title">
+                <h2 class="panel-title" id="status-panel-title">Status Penelusuran</h2>
+                
+                <!-- Pita Input (Tape) -->
+                <div class="tape-container">
+                    <span class="tape-label">Pita Input (Input Tape)</span>
+                    <div id="tape-visual" class="tape-cells">
+                        <!-- Tape cells render here -->
+                    </div>
+                </div>
+
+                <!-- Live Results Banner -->
+                <div id="result-box" class="result-panel running">
+                    <div id="result-status" class="result-status">BELUM DIMULAI</div>
+                    <div id="result-desc" class="result-desc">Silakan masukkan string tanda kurung lalu klik "Load" untuk memulai simulasi.</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column: State Diagram and Stack -->
+        <div class="right-column">
+            
+            <!-- Panel 3: State Diagram -->
+            <section class="glass-panel" aria-labelledby="diagram-panel-title">
+                <h2 class="panel-title" id="diagram-panel-title">Diagram Transisi PDA</h2>
+                
+                <div class="diagram-container">
+                    <svg class="pda-graph" viewBox="0 0 500 240">
+                        <defs>
+                            <!-- Markers for arrowheads -->
+                            <marker id="arrow" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#9ca3af" />
+                            </marker>
+                            <marker id="arrow-active" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#00f2fe" />
+                            </marker>
+                        </defs>
+
+                        <!-- Initial Transition -->
+                        <path d="M 30 120 L 85 120" class="transition-path" marker-end="url(#arrow)" id="trans-init" />
+                        <text x="45" y="110" class="label-text">Start</text>
+
+                        <!-- State q0 (Main State) -->
+                        <circle id="state-q0" cx="120" cy="120" r="35" class="state-circle" />
+                        <text x="120" y="125" class="state-text">q0</text>
+
+                        <!-- Self-loop Push transitions (above q0) -->
+                        <path d="M 102 92 C 70 20, 170 20, 138 92" class="transition-path" marker-end="url(#arrow)" id="trans-push" />
+                        <text x="120" y="18" class="label-text">( , Z0 / X Z0</text>
+                        <text x="120" y="32" class="label-text">( , X / X X</text>
+
+                        <!-- Self-loop Pop transitions (below q0) -->
+                        <path d="M 102 148 C 70 220, 170 220, 138 148" class="transition-path" marker-end="url(#arrow)" id="trans-pop" />
+                        <text x="120" y="228" class="label-text">) , X / ε</text>
+
+                        <!-- Transition to final state qf -->
+                        <path d="M 155 120 L 345 120" class="transition-path" marker-end="url(#arrow)" id="trans-accept" />
+                        <text x="250" y="110" class="label-text">ε , Z0 / Z0</text>
+
+                        <!-- State qf (Final State) -->
+                        <g id="state-qf-group">
+                            <circle id="state-qf" cx="380" cy="120" r="35" class="state-circle" />
+                            <circle id="state-qf-inner" cx="380" cy="120" r="28" class="state-circle-inner" />
+                        </g>
+                        <text x="380" y="125" class="state-text">qf</text>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Panel 4: Stack Visualization -->
+            <section class="glass-panel" aria-labelledby="stack-panel-title">
+                <h2 class="panel-title" id="stack-panel-title">Representasi Stack</h2>
+                <div class="stack-box-outer">
+                    <div id="stack-visual" class="stack-well">
+                        <!-- Stack items render dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Bottom Row: Log & History -->
+        <section class="glass-panel log-section" aria-labelledby="log-panel-title">
+            <h2 class="panel-title" id="log-panel-title">Tabel Riwayat Transisi (Pencarian Step-by-Step)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 0.5rem;">*Tips: Anda dapat mengklik baris mana pun di bawah untuk melompat langsung ke langkah tersebut.</p>
+            <div class="table-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Langkah</th>
+                            <th>Current State</th>
+                            <th>Symbol Read</th>
+                            <th>Stack Op</th>
+                            <th>Stack Content</th>
+                            <th>Next State</th>
+                            <th>Aktivitas Log</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted);">Muat input untuk menampilkan riwayat langkah.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Information & Explanation Section -->
+        <section class="info-section">
+            <div class="info-card">
+                <h3><span>⚙️</span> Cara Kerja PDA Penyeimbang Kurung</h3>
+                <p>Pushdown Automaton (PDA) adalah mesin automata yang memiliki memori tambahan berupa <strong>stack</strong>. Di simulator ini, PDA dirancang untuk mengenali pasangan tanda kurung seimbang:</p>
+                <ul>
+                    <li>Ketika melihat kurung buka <code class="inline-code">(</code>, kita melakukan <strong>Push</strong> simbol <code class="inline-code">X</code> ke stack. Ini merepresentasikan kurung buka yang sedang menunggu pasangannya.</li>
+                    <li>Ketika melihat kurung tutup <code class="inline-code">)</code>, kita melakukan <strong>Pop</strong> satu simbol <code class="inline-code">X</code> dari stack. Ini merepresentasikan pasangan kurung buka yang berhasil dipasangkan dan ditutup.</li>
+                    <li>Jika melihat kurung tutup <code class="inline-code">)</code> namun stack kosong (tidak ada <code class="inline-code">X</code>), artinya kurung tutup tidak memiliki pembuka. Simulator langsung menolak <strong>(REJECT)</strong>.</li>
+                    <li>Di akhir pita input, jika stack berhasil kembali ke simbol dasarnya yaitu <code class="inline-code">Z0</code>, PDA bertransisi ke state final <code class="inline-code">qf</code> dan menerima input <strong>(ACCEPT)</strong>.</li>
+                </ul>
+            </div>
+            
+            <div class="info-card">
+                <h3><span>📐</span> Definisi Formal Mesin (Tuple)</h3>
+                <p>PDA $M = (Q, \Sigma, \Gamma, \delta, q_0, Z_0, F)$ didefinisikan sebagai:</p>
+                <ul>
+                    <li>$Q = \{q_0, q_f\}$ (Kumpulan state)</li>
+                    <li>$\Sigma = \{(, )\}$ (Alfabet input)</li>
+                    <li>$\Gamma = \{X, Z_0\}$ (Alfabet stack)</li>
+                    <li>$q_0 = q_0$ (State awal)</li>
+                    <li>$Z_0 = Z_0$ (Simbol dasar stack)</li>
+                    <li>$F = \{q_f\}$ (State penerima/final)</li>
+                </ul>
+                <p><strong>Fungsi Transisi $\delta$:</strong></p>
+                <ul>
+                    <li>$\delta(q_0, (, Z_0) = (q_0, XZ_0)$</li>
+                    <li>$\delta(q_0, (, X) = (q_0, XX)$</li>
+                    <li>$\delta(q_0, ), X) = (q_0, \epsilon)$</li>
+                    <li>$\delta(q_0, \epsilon, Z_0) = (q_f, Z_0)$</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>PDA Simulator &copy; 2026 - Dikembangkan untuk Praktikum Teori Bahasa & Automata</p>
+    </footer>
+
+    <script>
+        // Engine Simulator PDA
+        let inputString = "";
+        let configs = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+
+        // Element cache
+        const inputField = document.getElementById("input-string");
+        const btnLoad = document.getElementById("btn-load");
+        const btnReset = document.getElementById("btn-reset");
+        const btnPrev = document.getElementById("btn-prev");
+        const btnPlay = document.getElementById("btn-play");
+        const btnNext = document.getElementById("btn-next");
+        const playIcon = document.getElementById("play-icon");
+        const speedSlider = document.getElementById("speed-slider");
+        const speedVal = document.getElementById("speed-val");
+        
+        const tapeVisual = document.getElementById("tape-visual");
+        const resultBox = document.getElementById("result-box");
+        const resultStatus = document.getElementById("result-status");
+        const resultDesc = document.getElementById("result-desc");
+        
+        const stackVisual = document.getElementById("stack-visual");
+        const logBody = document.getElementById("log-body");
+        
+        // SVGs
+        const stateQ0 = document.getElementById("state-q0");
+        const stateQf = document.getElementById("state-qf");
+        const stateQfInner = document.getElementById("state-qf-inner");
+        const transInit = document.getElementById("trans-init");
+        const transPush = document.getElementById("trans-push");
+        const transPop = document.getElementById("trans-pop");
+        const transAccept = document.getElementById("trans-accept");
+
+        // Sound effect or visual helper
+        let lastStackLength = 0;
+
+        // Initialize simulation by calling the Python backend server
+        async function loadSimulation() {
+            stopPlay();
+            inputString = inputField.value.trim();
+            
+            try {
+                // Set loading status
+                resultBox.className = "result-panel running";
+                resultStatus.textContent = "MENGHUBUNGI BACKEND...";
+                resultDesc.innerHTML = "Memproses simulasi PDA di server Python...";
+                
+                // Fetch trace steps from Python backend
+                // The URL is relative so it works on any host/port
+                const response = await fetch(`/api/simulate?input=${encodeURIComponent(inputString)}`);
+                if (!response.ok) {
+                    throw new Error(`Server Python mengembalikan status ${response.status}`);
+                }
+                
+                configs = await response.json();
+                currentStep = 0;
+                lastStackLength = 0;
+
+                renderTape(inputString, -1);
+                renderStack([]);
+                renderLogTable();
+                updateStepView();
+
+                // Enable buttons
+                btnReset.disabled = false;
+                btnPrev.disabled = true;
+                btnPlay.disabled = false;
+                btnNext.disabled = false;
+            } catch (err) {
+                console.error(err);
+                resultBox.className = "result-panel reject";
+                resultStatus.textContent = "KONEKSI BACKEND GAGAL";
+                resultDesc.innerHTML = `⚠️ <strong>Error:</strong> Gagal memuat simulasi dari Python backend.<br>
+                                        Detail: <em>${err.message}</em><br><br>
+                                        <strong>Langkah Penyelesaian:</strong><br>
+                                        1. Pastikan Anda menjalankan server dengan perintah: <code class="inline-code">python pda.py</code><br>
+                                        2. Pastikan port server aktif di browser Anda.`;
+                
+                // Disable control buttons
+                btnReset.disabled = true;
+                btnPrev.disabled = true;
+                btnPlay.disabled = true;
+                btnNext.disabled = true;
+            }
+        }
+
+        // Render input tape
+        function renderTape(str, activeIndex) {
+            tapeVisual.innerHTML = "";
+            if (str.length === 0) {
+                tapeVisual.innerHTML = `<div class="tape-empty">Empty Input (ε)</div>`;
+                return;
+            }
+
+            for (let i = 0; i < str.length; i++) {
+                const cell = document.createElement("div");
+                cell.className = `tape-cell ${i === activeIndex ? 'active' : ''} ${i < activeIndex ? 'processed' : ''}`;
+                cell.textContent = str[i];
+                tapeVisual.appendChild(cell);
+            }
+        }
+
+        // Render stack dynamically
+        let currentStackRendered = [];
+        function renderStack(targetStack) {
+            // Helper to build stack element
+            const createEl = (val, isBottom) => {
+                const el = document.createElement("div");
+                el.className = `stack-item ${isBottom ? 'bottom' : 'x-val'}`;
+                el.textContent = val;
+                return el;
+            };
+
+            const prevLen = currentStackRendered.length;
+            const newLen = targetStack.length;
+
+            if (Math.abs(prevLen - newLen) !== 1) {
+                // If it's a jump, reset, or load, render immediately
+                stackVisual.innerHTML = "";
+                targetStack.forEach((val, idx) => {
+                    stackVisual.appendChild(createEl(val, idx === 0));
+                });
+            } else if (newLen > prevLen) {
+                // Push: append new element to end (which will grow upward due to column-reverse)
+                const newItem = targetStack[newLen - 1];
+                stackVisual.appendChild(createEl(newItem, newLen === 1));
+            } else if (newLen < prevLen) {
+                // Pop: animate removal of top element
+                const lastNode = stackVisual.lastElementChild;
+                if (lastNode) {
+                    lastNode.style.animation = "pop-animation 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards";
+                    setTimeout(() => {
+                        if (lastNode.parentNode === stackVisual) {
+                            stackVisual.removeChild(lastNode);
+                        }
+                    }, 180);
+                }
+            }
+            currentStackRendered = [...targetStack];
+        }
+
+        // Render step table
+        function renderLogTable() {
+            logBody.innerHTML = "";
+            
+            configs.forEach((cfg) => {
+                const tr = document.createElement("tr");
+                tr.id = `log-row-${cfg.stepIndex}`;
+                tr.addEventListener("click", () => jumpToStep(cfg.stepIndex));
+
+                let opClass = "";
+                if (cfg.action.includes("Push")) opClass = "push";
+                else if (cfg.action.includes("Pop")) opClass = "pop";
+                else if (cfg.action === "ACCEPT") opClass = "accept-log";
+                else if (cfg.action === "REJECT") opClass = "reject-log";
+
+                tr.innerHTML = `
+                    <td>${cfg.stepIndex}</td>
+                    <td class="mono-cell">${cfg.state}</td>
+                    <td class="mono-cell">${cfg.symbolRead}</td>
+                    <td class="action-cell ${opClass}">${cfg.action}</td>
+                    <td class="stack-cell-text">[${cfg.stack.join(", ")}]</td>
+                    <td class="mono-cell">${cfg.nextState}</td>
+                    <td>${cfg.desc}</td>
+                `;
+                logBody.appendChild(tr);
+            });
+        }
+
+        // Highlight active transition path and states in SVG
+        function updateSVGDiagram(config) {
+            // Reset all active classes
+            stateQ0.classList.remove("active", "accept", "reject");
+            stateQf.classList.remove("active", "accept", "reject");
+            stateQfInner.classList.remove("accept");
+            
+            transInit.classList.remove("active");
+            transPush.classList.remove("active");
+            transPop.classList.remove("active");
+            transAccept.classList.remove("active");
+
+            // Set state highlight
+            const curState = config.state;
+            const nextState = config.nextState;
+
+            if (config.status === "accept") {
+                stateQ0.classList.remove("active");
+                stateQf.classList.add("accept");
+                stateQfInner.classList.add("accept");
+            } else if (config.status === "reject") {
+                stateQ0.classList.add("reject");
+            } else {
+                if (curState === "q0") stateQ0.classList.add("active");
+                if (curState === "qf") stateQf.classList.add("active");
+            }
+
+            // Set transition pathway highlight
+            if (config.transitionId) {
+                const pathEl = document.getElementById(config.transitionId);
+                if (pathEl) {
+                    pathEl.classList.add("active");
+                }
+            }
+        }
+
+        // Update step UI views
+        function updateStepView() {
+            const config = configs[currentStep];
+            if (!config) return;
+
+            // Tape View Update
+            renderTape(inputString, config.tapeIndex);
+
+            // Stack View Update
+            renderStack(config.stack);
+
+            // Update result box status
+            resultBox.className = `result-panel ${config.status}`;
+            
+            if (config.status === "accept") {
+                resultStatus.textContent = "ACCEPT (DITERIMA)";
+                resultDesc.innerHTML = `🥳 <strong>Sukses!</strong> Kurung seimbang sempurna.<br>${config.desc}`;
+            } else if (config.status === "reject") {
+                resultStatus.textContent = "REJECT (DITOLAK)";
+                resultDesc.innerHTML = `❌ <strong>Gagal!</strong> Kurung tidak seimbang.<br>${config.desc}`;
+            } else {
+                resultStatus.textContent = `MENELUSURI (Langkah ${currentStep}/${configs.length - 1})`;
+                resultDesc.innerHTML = `👉 State: <code class="inline-code">${config.state}</code>, Baca: <code class="inline-code">${config.symbolRead}</code>.<br>${config.desc}`;
+            }
+
+            // SVG Highlight Update
+            updateSVGDiagram(config);
+
+            // Update Table Highlight
+            document.querySelectorAll(".log-table tbody tr").forEach(row => row.classList.remove("active-row"));
+            const curRow = document.getElementById(`log-row-${currentStep}`);
+            if (curRow) {
+                curRow.classList.add("active-row");
+                curRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Handle navigation buttons availability
+            btnPrev.disabled = (currentStep === 0);
+            btnNext.disabled = (currentStep === configs.length - 1);
+            if (currentStep === configs.length - 1) {
+                stopPlay();
+            }
+        }
+
+        // Controls
+        function stepForward() {
+            if (currentStep < configs.length - 1) {
+                currentStep++;
+                updateStepView();
+            }
+        }
+
+        function stepBackward() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateStepView();
+            }
+        }
+
+        function resetSimulation() {
+            stopPlay();
+            currentStep = 0;
+            updateStepView();
+        }
+
+        // Auto play engine
+        function startPlay() {
+            if (currentStep >= configs.length - 1) {
+                currentStep = 0;
+            }
+            isPlaying = true;
+            playIcon.textContent = "⏸";
+            btnPlay.title = "Jeda Simulasi";
+            
+            const speed = parseInt(speedSlider.value);
+            playInterval = setInterval(() => {
+                if (currentStep < configs.length - 1) {
+                    stepForward();
+                } else {
+                    stopPlay();
+                }
+            }, speed);
+        }
+
+        function stopPlay() {
+            isPlaying = false;
+            playIcon.textContent = "▶";
+            btnPlay.title = "Mainkan Otomatis";
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopPlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        // Event Listeners
+        btnLoad.addEventListener("click", loadSimulation);
+        
+        inputField.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                loadSimulation();
+            }
+        });
+
+        btnNext.addEventListener("click", stepForward);
+        btnPrev.addEventListener("click", stepBackward);
+        btnReset.addEventListener("click", resetSimulation);
+        btnPlay.addEventListener("click", togglePlay);
+
+        speedSlider.addEventListener("input", () => {
+            const val = (speedSlider.value / 1000).toFixed(1) + "s";
+            speedVal.textContent = val;
+            
+            // If playing, reset interval
+            if (isPlaying) {
+                stopPlay();
+                startPlay();
+            }
+        });
+
+        // Set test cases
+        document.querySelectorAll(".test-case-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                inputField.value = btn.getAttribute("data-val");
+                loadSimulation();
+            });
+        });
+
+        // Initial Load on page startup
+        window.addEventListener("DOMContentLoaded", () => {
+            loadSimulation();
+        });
+    </script>
+</body>
+</html>
