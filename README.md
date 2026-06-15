@@ -1,4 +1,4 @@
-# PDA Simulator - Mixed Bracket Validator
+# PDA Simulator Machine
 | Name           | NRP        | 
 | ---            | ---        | 
 | Rafi Attar Maulana | 5025241141 | 
@@ -57,14 +57,6 @@ Program menampilkan:
 ## Requirements
 
 * Python 3.x
-
-Library yang digunakan:
-
-* tkinter
-
-Tkinter sudah tersedia secara default pada sebagian besar instalasi Python.
-
----
 
 ## Cara Menjalankan Program
 
