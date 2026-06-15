@@ -1,0 +1,7 @@
+# OTOMATA-TUGAS-PRAKTIKUM-2-KELOMPOK B06
+
+| Name           | NRP        | 
+| ---            | ---        | 
+| Rafi Attar Maulana | 5025241141 | 
+| Syah Amin Zikri | 5025241197 | 
+| Davin Adiputra Suryolaksana | 5025241220 |
